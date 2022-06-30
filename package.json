@@ -10,12 +10,15 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^2.9.1",
+    "@supabase/auth-helpers-nextjs": "^0.2.0",
+    "@supabase/auth-helpers-react": "^0.2.0",
     "@supabase/supabase-js": "^1.35.3",
+    "@supabase/ui": "^0.36.5",
     "daisyui": "^2.15.4",
     "nanoid": "^4.0.0",
     "next": "12.1.6",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-hook-form": "^7.32.2",
     "yup": "^0.32.11"
   },

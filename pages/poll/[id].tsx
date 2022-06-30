@@ -1,118 +1,94 @@
-import { GetServerSideProps, NextPage } from "next";
+import { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { supabase } from "../../utils/supabase";
-import { PollDB } from "../create";
+import { supabaseClient, withPageAuth } from "@supabase/auth-helpers-nextjs";
+import { PollPageProps } from "../../types/types";
+import { useUser } from "@supabase/auth-helpers-react";
+import { getPollFromSlug } from "../../lib/supabaseCalls";
+import Loading from "../../components/Loading";
+import VoteOnPoll from "../../components/VoteOnPoll";
+import PollResults from "../../components/PollResults";
+import Header from "../../components/Header";
 
-type PollProps = {
-  poll: PollDB;
-};
+export const getServerSideProps = withPageAuth({
+  redirectTo: "/",
+  async getServerSideProps({ params }) {
+    const poll = await getPollFromSlug(params?.id);
 
-type QuestionsDB = {
-  id: number;
-  created_at: string;
-  poll_id: number;
-  question: string;
-}[];
-
-type VotesDB = {
-  id: number;
-  created_at: string;
-  poll_id: number;
-  question_id: number;
-}[];
-
-export const getServerSideProps: GetServerSideProps = async ({ params }) => {
-  const { data: poll } = await supabase
-    .from("polls")
-    .select("*")
-    .eq("slug", params?.id)
-    .single();
-
-  return {
-    props: { poll },
-  };
-};
-
-const Poll: NextPage<PollProps> = ({ poll }) => {
-  const [questions, setQuestions] = useState<QuestionsDB>([]);
-  const [votes, setVotes] = useState<VotesDB>([]);
-
-  const createVote = async (questionId: number) => {
-    const { data: vote } = await supabase
-      .from("votes")
-      .insert([{ question_id: questionId, poll_id: poll.id }]);
-  };
-
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      const { data: questionsFromID } = await supabase
-        .from("questions")
-        .select("*")
-        .eq("poll_id", poll.id);
-
-      if (questionsFromID) {
-        setQuestions(questionsFromID);
-      }
-    };
-
-    const fetchVotes = async () => {
-      const { data: votesFromID } = await supabase
-        .from("votes")
-        .select("*")
-        .eq("poll_id", poll.id);
-
-      if (votesFromID) {
-        setVotes(votesFromID);
-      }
-    };
-
-    if (poll) {
-      fetchQuestions();
-      fetchVotes();
+    if (!poll) {
+      return {
+        notFound: true,
+      };
     }
 
-    const subscription = supabase
+    return {
+      props: { poll },
+    };
+  },
+});
+
+const Poll: NextPage<PollPageProps> = (
+  { poll },
+) => {
+  const [questions, setQuestions] = useState(poll.questions);
+  const [votes, setVotes] = useState(poll.votes);
+  const [voted, setVoted] = useState(false);
+  const [checkingIfVoted, setCheckingIfVoted] = useState(true);
+  const { user } = useUser();
+
+  useEffect(() => {
+    const subscription = supabaseClient
       .from(`votes:poll_id=eq.${poll.id}`)
       .on("INSERT", (payload) => {
-        setVotes((current) => [...current, payload.new]);
+        setVotes((currentVotes) => [...currentVotes, payload.new]);
       })
       .subscribe();
 
     return () => {
-      supabase.removeSubscription(subscription);
+      supabaseClient.removeSubscription(subscription);
     };
   }, []);
 
-  if (!poll) {
-    return <div>error</div>;
-  }
-  if (questions.length > 0) {
+  useEffect(() => {
+    const checkIfVoted = () => {
+      const userHasVoted = poll.votes.filter(
+        (vote) => vote.voter_id === user?.id,
+      );
+
+      if (userHasVoted.length > 0) setVoted(true);
+
+      setCheckingIfVoted(false);
+    };
+
+    if (user && checkingIfVoted) checkIfVoted();
+  }, [user]);
+
+  if (user && !checkingIfVoted) {
     return (
-      <div>
-        <h1 className="text-xl">{poll.title}</h1>
-        {questions.map((question) => {
-          return (
-            <div key={question.id}>
-              <div>{question.question}</div>
-              <div>
-                {
-                  votes.filter((vote) => vote.question_id === question.id)
-                    .length
-                }
-              </div>
-              <button
-                className="btn btn-primary"
-                onClick={() => createVote(question.id)}
-              >
-                this one
-              </button>
-            </div>
-          );
-        })}
-      </div>
+      <>
+        <Header />
+        {voted &&
+          (
+            <PollResults
+              poll_title={poll.title}
+              questions={questions}
+              votes={votes}
+            />
+          )}
+        {!voted &&
+          (
+            <VoteOnPoll
+              user_id={user.id}
+              poll_id={poll.id}
+              setVoted={setVoted}
+              poll_title={poll.title}
+              questions={poll.questions}
+            />
+          )}
+      </>
     );
   }
-  return <div>loading</div>;
+
+  return <Loading />;
 };
 
 export default Poll;
