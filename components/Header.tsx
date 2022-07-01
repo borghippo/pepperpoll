@@ -11,6 +11,9 @@ const Header: React.FC = () => {
         </div>
         <div className="flex-none">
           <ul className="menu menu-horizontal p-0">
+            <Link href="/mypolls">
+              <a className="btn btn-ghost">My Polls</a>
+            </Link>
             <Link href="/api/auth/logout">
               <a className="btn btn-ghost">Logout</a>
             </Link>

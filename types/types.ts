@@ -9,6 +9,12 @@ export type FormInputs = {
   }[];
 };
 
+export type UsersPolls = {
+  user_id: string;
+  slug: string;
+  title: string;
+};
+
 export type QuestionsDB = {
   id: number;
   created_at: string;

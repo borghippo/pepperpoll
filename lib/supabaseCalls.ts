@@ -3,7 +3,17 @@ import {
   PollDB,
   PollWithQuestionsAndVotesDB,
   QuestionsToInsert,
+  UsersPolls,
 } from "../types/types";
+
+export const getUserPolls = async (user_id: string) => {
+  const { data } = await supabaseClient
+    .from<UsersPolls>("polls")
+    .select("title, slug")
+    .eq("user_id", user_id);
+
+  return data;
+};
 
 export const getPollFromSlug = async (slug: string | string[] | undefined) => {
   const { data } = await supabaseClient

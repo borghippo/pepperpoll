@@ -20,7 +20,7 @@ const Home: NextPage = () => {
           Pepper Poll 🌶
         </h1>
         <Auth
-          className="max-w-md m-auto"
+          className="max-w-xs md:max-w-md m-auto"
           supabaseClient={supabaseClient}
         />
       </>
