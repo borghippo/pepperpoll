@@ -24,7 +24,7 @@ const VoteOnVoll: React.FC<
   return (
     <div className="flex flex-col items-center justify-center">
       <h1 className="text-4xl text-center pt-2 pb-8">{poll_title}</h1>
-      <div className="flex flex-col space-y-4 w-1/2">
+      <div className="flex flex-col space-y-4 w-72">
         {questions.map((question) => {
           return (
             <div
