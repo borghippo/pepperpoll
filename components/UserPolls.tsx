@@ -14,7 +14,7 @@ const UserPolls: React.FC<{ polls: UsersPolls[] }> = ({ polls }) => {
             className="flex flex-col items-center justify-center"
           >
             <Link href={`/poll/${poll.slug}`}>
-              <a>{poll.title}</a>
+              <button className="btn btn-ghost">{poll.title}</button>
             </Link>
           </div>
         );

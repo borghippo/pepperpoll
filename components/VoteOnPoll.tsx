@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction } from "react";
 import { createNewVote } from "../lib/supabaseCalls";
+import CopyToClipboard from "./CopyToClipboard";
 
 const VoteOnVoll: React.FC<
   {
@@ -23,8 +24,9 @@ const VoteOnVoll: React.FC<
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <h1 className="text-4xl text-center pt-2 pb-8">{poll_title}</h1>
-      <div className="flex flex-col space-y-4 w-72">
+      <h1 className="text-4xl text-center pt-2 pb-4">{poll_title}</h1>
+      <CopyToClipboard />
+      <div className="flex flex-col space-y-4 w-72 pt-4">
         {questions.map((question) => {
           return (
             <div
@@ -33,7 +35,7 @@ const VoteOnVoll: React.FC<
             >
               <p className="font-bold">{question.question}</p>
               <button
-                className="btn btn-primary"
+                className="btn btn-primary btn-sm"
                 onClick={() => createVote(question.id)}
               >
                 this one

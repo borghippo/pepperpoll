@@ -1,3 +1,4 @@
+import CopyToClipboard from "./CopyToClipboard";
 import Loading from "./Loading";
 
 const PollResults: React.FC<{
@@ -15,6 +16,7 @@ const PollResults: React.FC<{
     return (
       <div className="flex flex-col items-center justify-center">
         <h1 className="text-4xl text-center p-4">{poll_title}</h1>
+        <CopyToClipboard />
         {questions.map((question) => {
           const votesForQuestion = votes.filter(
             (vote) => vote.question_id === question.id,
