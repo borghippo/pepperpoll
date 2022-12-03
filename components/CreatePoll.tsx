@@ -122,7 +122,7 @@ const CreatePoll: React.FC<{ user: User }> = ({ user }) => {
             add option
           </button>
 
-          <input className="btn btn-primary my-2" type="submit" />
+          <button className="btn btn-primary my-2" type="submit">submit</button>
         </form>
       </div>
     </div>
